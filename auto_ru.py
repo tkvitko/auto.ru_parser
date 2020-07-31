@@ -13,9 +13,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from sys import argv
 from translit import transliterate
+from translit2 import transliterate2
 
-from parse_desc import parse_description
-from parse_name import parse_name
+from auto_ru_parse_desc import parse_description
+from auto_ru_parse_name import parse_name
 
 # Глобальные настройки
 logging.basicConfig(level=logging.INFO)
@@ -150,8 +151,9 @@ def parse_model(model_url, block_number):
             car['name_marka'], car['name_model'] = parse_name(name_text)
             car['nameplate'] = None
 
-            car['rus_marka'] = transliterate(car['name_marka'])
-            car['rus_model'] = transliterate(car['name_model'])
+            # Транслитерация. Функция с "2" - библиотечная, функция без "2" - с ручным редактированием словаря
+            car['rus_marka'] = transliterate2(car['name_marka'])
+            car['rus_model'] = transliterate2(car['name_model'])
             car['rus_nameplate'] = None
 
             car['url_marka'] = url_marka
@@ -250,7 +252,7 @@ if __name__ == "__main__":
     # script, block_number_str = argv
     # block_number = int(block_number_str)
 
-    with open(f'source_urls/{block_number}.txt', 'r') as source:
+    with open(f'auto_ru_source_urls/{block_number}.txt', 'r') as source:
         source_links = source.read().splitlines()
 
     cars = []
