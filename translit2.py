@@ -6,5 +6,5 @@ def transliterate2(name):
 
 
 if __name__ == "__main__":
-    text = "Renault"
+    text = "Qoutaw"
     print(translit(text, 'ru'))

@@ -57,7 +57,7 @@ def parse_description(description):
     # По объему заполняем или значение сантиметров, или литров
     if capacity_sm_list:
         capacity_sm = capacity_sm_list[0]
-        capacity_sm_val = re.findall(r'\d+ ?\d+', capacity_sm)
+        capacity_sm_val = re.findall(r'\d+ ?\d*', capacity_sm)
         if capacity_sm_val:
             capacity_res = int(capacity_sm_val[0].replace(' ', ''))
     elif capacity_l_list:
@@ -92,8 +92,8 @@ if __name__ == "__main__":
     #
     # descr6 = '1 см³\u2009/\u20092 такта\n2 передачи'
     # descr7 = '200 см³\u2009/\u20094 такта\nВариатор'
-    # descr8 = '200 см³\u2009/\u200912 л.с.\u2009/\u20092 такта'
-    # descr10 = '1 600 см³\u2009/\u200957 л.с.\u2009/\u20094 такта\n4 цилиндра / рядное\nПолуавтомат'
+    descr8 = '2 см³\u2009/\u200912 л.с.\u2009/\u20092 такта'
+    descr10 = '1 600 см³\u2009/\u200957 л.с.\u2009/\u20094 такта\n4 цилиндра / рядное\nПолуавтомат'
     # descr11 = '565 см³\u2009/\u200957 л.с.\u2009/\u20092 такта\n2 цилиндра'
     # descr12 = '20 000 см³'
     descr13 = '250 см³\u2009/\u200920 л.с.\n1 цилиндр / рядное\n5 прямых и задняя'
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     # descr15 = 'гусеничный трактор\n3.9 л\u2009/\u2009125 л.с.'
     # descr16 = 'комбайн\n6.4 л\u2009/\u2009258 л.с.'
 
-    mot, cap, pow, lif, fuel = parse_description(descr13)
+    mot, cap, pow, lif, fuel = parse_description(descr10)
     print(mot)
     print(cap)
     print(pow)

@@ -1,0 +1,3 @@
+python3.7 auto_ru.py 1 True; python3.7 auto_ru.py 2 True; python3.7 auto_ru.py 3 True; python3.7 auto_ru.py 4 True; python3.7 auto_ru.py 5 True; python3.7 auto_ru.py 6 True; python3.7 auto_ru.py 7 True; python3.7 auto_ru.py 8 True; python3.7 auto_ru.py 9 True; python3.7 auto_ru.py 10 True; python3.7 auto_ru.py 11 True; python3.7 auto_ru.py 12 True; python3.7 auto_ru.py 13 True; python3.7 auto_ru.py 14 True; python3.7 auto_ru.py 15 True; python3.7 auto_ru.py 16 True
+
+python3.7 auto_ru.py 12 True; python3.7 auto_ru.py 13 True; python3.7 auto_ru.py 14 True; python3.7 auto_ru.py 15 True; python3.7 auto_ru.py 16 True; python3.7 auto_ru.py 4 True

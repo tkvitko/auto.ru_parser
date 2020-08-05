@@ -2,6 +2,7 @@ import time
 import wget
 import os
 import re
+import logging
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -21,12 +22,15 @@ header = {
 
 chrome_options = Options()
 chrome_options.add_argument('start-maximized')
+# на всякий случай, без этого могло упасть по timeout:
+chrome_options.add_argument('enable-features=NetworkServiceInProcess')
+chrome_options.add_argument('--no-sandbox')
 driver = webdriver.Chrome('./chromedriver', options=chrome_options)
 
 # Лимиты для операций
 max_offers_per_model = 100
 max_offers_for_photo_per_model = 20
-max_photoes_per_offer = 4
+max_photoes_per_offer = 2
 
 blocks_props = {
     1: 'bus',
@@ -44,7 +48,8 @@ blocks_props = {
     13: 'tricycle',
     14: 'koleso_traktor',
     15: 'gus_traktor',
-    16: 'combain'
+    16: 'combain',
+    17: 'test'
 }
 
 
@@ -67,6 +72,7 @@ def parse_type(type_url):
 
     # Сохраняем список URLs на марки:
     marks_urls_blocks = driver.find_elements_by_xpath("//a[@class='Link ListingPopularMMM-module__itemName']")
+    logging.info(f'Marks count: {len(marks_urls_blocks)}')
     marks_urls = []  # каждый URL ведет на конкретную марку
     for i in range(len(marks_urls_blocks)):
         mark_name = marks_urls_blocks[i].text
@@ -96,6 +102,7 @@ def parse_mark(mark_url):
 
     # Сохраняем список URLs на модели:
     models_urls_blocks = driver.find_elements_by_xpath("//a[@class='Link ListingPopularMMM-module__itemName']")
+    logging.info(f'Models count: {len(models_urls_blocks)}')
     models_urls = []  # каждый URL ведет на конкретную модель
     for i in range(len(models_urls_blocks)):
         model_name = models_urls_blocks[i].text
@@ -106,7 +113,7 @@ def parse_mark(mark_url):
     return models_urls
 
 
-def parse_model(model_url, block_number):
+def parse_model(model_url, block_number, download):
     # Работа с url, ведущем на страницу модели машины.
     # Пример URL: https://auto.ru/rossiya/atv/russkaya_mehanika/gamax_ax600/all/
 
@@ -125,9 +132,14 @@ def parse_model(model_url, block_number):
         driver.get(url)
         cars_block_list = driver.find_elements_by_xpath("//div[@class='ListingItem-module__main']")
 
-        # Скроллимся до низа страницы, чтобы подтянулись url на картинки
+        # МЕДЛЕННО Скроллимся до низа страницы, чтобы подтянулись url на картинки
+
         if cars_block_list:
             actions = ActionChains(driver)
+            for i in range(len(cars_block_list)):
+                if i%6 == 0:    # достаточно такого шага, чтобы подгружались все фото
+                #if i%5 == 0:   #first try
+                    actions.move_to_element(cars_block_list[i])
             actions.move_to_element(cars_block_list[-1])
             actions.perform()
 
@@ -141,8 +153,8 @@ def parse_model(model_url, block_number):
             car['nameplate'] = None
 
             # Транслитерация. Функция с "2" - библиотечная, функция без "2" - с ручным редактированием словаря
-            car['rus_marka'] = transliterate2(car['name_marka'])
-            car['rus_model'] = transliterate2(car['name_model'])
+            car['rus_marka'] = transliterate(car['name_marka'])
+            car['rus_model'] = transliterate(car['name_model'])
             car['rus_nameplate'] = None
 
             car['url_marka'] = url_marka
@@ -162,30 +174,31 @@ def parse_model(model_url, block_number):
             dest_marka_folder = f"{url_marka}"
             dest_model_folder = f"{url_model}"
 
-            if counter_offers_for_photoes < max_offers_for_photo_per_model:
-                try:
-                    imgs_urls_list = car_block.find_elements_by_class_name('LazyImage__image')
-                    # Выбираем не больше 4 фоток для скачивания:
-                    if len(imgs_urls_list) > max_photoes_per_offer:
-                        imgs_urls_list = imgs_urls_list[:max_photoes_per_offer]
-                    #        imgs_urls_list = car_block.find_elements_by_xpath("//img[@class='LazyImage__image']")
-                    for i in range(len(imgs_urls_list)):
-                        dest_folder = os.path.join(dest_block_folder, dest_marka_folder, dest_model_folder)
-                        # создание папки, если ее нет
-                        os.makedirs(dest_folder, exist_ok=True)
-                        # получение url на картинку
-                        url_img = imgs_urls_list[i].get_attribute('src')
-                        # преобразование url для того, чтобы получить большую картинку вместо маленькой
-                        url_big = re.sub('320x240', '1200x900n', url_img)
-                        # формирование имени файла картинки
-                        filename = f'{url_marka}_{url_model}_{counter_filename}_{i + 1}.webp'
-                        # формирование полного пути для скачивания картинки
-                        destination = os.path.join(dest_folder, filename)
-                    #                        wget.download(url_big, out=destination)
-                    counter_filename += 1
-                    counter_offers_for_photoes += 1
-                except:
-                    pass
+            if download:
+                if counter_offers_for_photoes < max_offers_for_photo_per_model:
+                    try:
+                        imgs_urls_list = car_block.find_elements_by_class_name('LazyImage__image')
+                        # Выбираем не больше 4 фоток для скачивания:
+                        if len(imgs_urls_list) > max_photoes_per_offer:
+                            imgs_urls_list = imgs_urls_list[:max_photoes_per_offer]
+                        #        imgs_urls_list = car_block.find_elements_by_xpath("//img[@class='LazyImage__image']")
+                        for i in range(len(imgs_urls_list)):
+                            dest_folder = os.path.join(dest_block_folder, dest_marka_folder, dest_model_folder)
+                            # создание папки, если ее нет
+                            os.makedirs(dest_folder, exist_ok=True)
+                            # получение url на картинку
+                            url_img = imgs_urls_list[i].get_attribute('src')
+                            # преобразование url для того, чтобы получить большую картинку вместо маленькой
+                            url_big = re.sub('320x240', '1200x900n', url_img)
+                            # формирование имени файла картинки
+                            filename = f'{blocks_props[block_number]}_{url_marka}_{url_model}_{counter_filename}_{i + 1}.webp'
+                            # формирование полного пути для скачивания картинки
+                            destination = os.path.join(dest_folder, filename)
+                            wget.download(url_big, out=destination)
+                        counter_filename += 1
+                        counter_offers_for_photoes += 1
+                    except:
+                        print('except')
 
             # По умолчанию берем все объявления
             drop_this_car = False
@@ -196,7 +209,7 @@ def parse_model(model_url, block_number):
                     drop_this_car = True
 
             if block_number == 7:
-                if car['vsm3'] < 51:
+                if car['vsm3'] and car['vsm3'] < 51:
                     drop_this_car = True
 
             if block_number == 14 or block_number == 15 or block_number == 16:

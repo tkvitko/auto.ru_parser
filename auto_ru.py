@@ -41,12 +41,13 @@ blocks_props = {
     13: 'tricycle',
     14: 'koleso_traktor',
     15: 'gus_traktor',
-    16: 'combain'
+    16: 'combain',
+    17: 'test'
 }
 
 # Классификация блоков по типу url в них
-model_links_blocks = [5, 8]
-mark_links_blocks = [1, 2, 3, 4, 6, 7, 10, 11]
+model_links_blocks = [5, 8, 17]
+mark_links_blocks = [1, 2, 3, 4, 6, 7, 9, 10, 11]
 type_links_blocks = [12, 13, 14, 15, 16]
 
 
@@ -56,7 +57,7 @@ def go_parse(models_list):
     for model in models_list:
         # Дебаг для 1 модели:
         #model = models_list[0]
-        cars_new = parse_model(model, block_number)
+        cars_new = parse_model(model, block_number, download)
         for car in cars_new:
             cars.append(car)
         #        print(car)
@@ -64,9 +65,9 @@ def go_parse(models_list):
 
 
 if __name__ == "__main__":
-    block_number = 3
-    # script, block_number_str = argv
-    # block_number = int(block_number_str)
+    #block_number = 3
+    script, block_number_str, download = argv
+    block_number = int(block_number_str)
 
     with open(f'auto_ru_source_urls/{block_number}.txt', 'r') as source:
         source_links = source.read().splitlines()
