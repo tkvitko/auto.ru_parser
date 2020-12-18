@@ -14,5 +14,8 @@ def parse_name(name_text):
 
 
 if __name__ == "__main__":
+
+    # Тестирование:
+    
     name_text = 'ТМЗ (Туламашзавод) Муравей'
     print(parse_name(name_text))

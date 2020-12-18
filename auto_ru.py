@@ -56,7 +56,7 @@ def go_parse(models_list):
 
     for model in models_list:
         # Дебаг для 1 модели:
-        #model = models_list[0]
+        # model = models_list[0]
         cars_new = parse_model(model, block_number, download)
         for car in cars_new:
             cars.append(car)
@@ -65,7 +65,7 @@ def go_parse(models_list):
 
 
 if __name__ == "__main__":
-    #block_number = 3
+    # block_number = 3
     script, block_number_str, download = argv
     block_number = int(block_number_str)
 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     elif block_number in mark_links_blocks:
         for source_link in source_links:
             # Дебаг для одного URL:
-            #source_link = source_links[0]
+            # source_link = source_links[0]
             models_list = parse_mark(source_link)
             go_parse(models_list)
 

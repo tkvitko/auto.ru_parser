@@ -137,8 +137,8 @@ def parse_model(model_url, block_number, download):
         if cars_block_list:
             actions = ActionChains(driver)
             for i in range(len(cars_block_list)):
-                if i%6 == 0:    # достаточно такого шага, чтобы подгружались все фото
-                #if i%5 == 0:   #first try
+                if i % 6 == 0:  # достаточно такого шага, чтобы подгружались все фото
+                    # if i%5 == 0:   #first try
                     actions.move_to_element(cars_block_list[i])
             actions.move_to_element(cars_block_list[-1])
             actions.perform()
@@ -217,7 +217,7 @@ def parse_model(model_url, block_number, download):
                     drop_this_car = True
 
             # Если ни одно из локальных правил не сработало, берем объявение
-            if drop_this_car == False:
+            if not drop_this_car:
                 # Не оптимально, лишние объявления будут парситься, но отбрасываться.
                 if counter_offer <= max_offers_per_model:
                     cars.append(car)
